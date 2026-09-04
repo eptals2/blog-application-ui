@@ -63,61 +63,37 @@ const login = async () => {
 
     <div class="min-h-screen bg-gray-100 flex items-center justify-center">
 
-        <form
-            class="w-full max-w-md rounded-xl bg-white p-8 shadow"
-            @submit.prevent="login"
-        >
+        <form class="w-full max-w-md rounded-xl bg-white p-8 shadow" @submit.prevent="login">
 
             <h1 class="mb-6 text-2xl font-bold">
                 Admin Login
             </h1>
 
-            <label
-                for="email"
-                class="mb-2 block text-sm font-medium"
-            >
+            <label for="email" class="mb-2 block text-sm font-medium">
                 Email
             </label>
 
-            <input
-                id="email"
-                v-model="email"
-                type="email"
-                autocomplete="email"
-                required
-                class="mb-4 w-full rounded-lg border px-4 py-2"
-            />
+            <input id="email" v-model="email" type="email" autocomplete="email" required
+                class="mb-4 w-full rounded-lg border px-4 py-2" />
 
-            <label
-                for="password"
-                class="mb-2 block text-sm font-medium"
-            >
+            <label for="password" class="mb-2 block text-sm font-medium">
                 Password
             </label>
 
-            <input
-                id="password"
-                v-model="password"
-                type="password"
-                autocomplete="current-password"
-                required
-                class="mb-4 w-full rounded-lg border px-4 py-2"
-            />
+            <input id="password" v-model="password" type="password" autocomplete="current-password" required
+                class="mb-4 w-full rounded-lg border px-4 py-2" />
 
-            <p
-                v-if="error"
-                class="mb-4 text-sm text-red-600"
-            >
+            <p v-if="error" class="mb-4 text-sm text-red-600">
                 {{ error }}
             </p>
 
-            <button
-                type="submit"
-                :disabled="loading"
-                class="w-full rounded-lg bg-black px-4 py-2 text-white hover:bg-gray-800 disabled:opacity-50"
-            >
+            <button type="submit" :disabled="loading"
+                class="w-full rounded-lg bg-black px-4 py-2 text-white hover:bg-gray-800 disabled:opacity-50">
                 {{ loading ? 'Logging in...' : 'Log in' }}
             </button>
+
+            <NuxtLink to="/" class="text-gray-600 hover:text-gray-900 text-center block mt-4">
+                Back to Home </NuxtLink>
 
         </form>
 
