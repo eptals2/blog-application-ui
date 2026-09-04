@@ -12,26 +12,12 @@ const { data, error, pending } = await useAsyncData(
 <template>
     <div class="min-h-screen bg-gray-100">
 
-        <header class="border-b bg-white">
-            <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-
-                <NuxtLink to="/" class="text-2xl font-bold text-gray-900">
-                    Blog App
-                </NuxtLink>
-
-                <nav class="flex gap-6">
-                    <NuxtLink to="/login" class="text-gray-600 hover:text-gray-900">
-                        Login
-                    </NuxtLink>
-                </nav>
-
-            </div>
-        </header>
+        <Navbar />
 
         <main class="mx-auto max-w-6xl px-6 py-10">
 
             <h1 class="mb-8 text-4xl font-bold text-gray-900">
-               Posts
+                Posts
             </h1>
 
             <p v-if="pending" class="text-gray-600">
