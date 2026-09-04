@@ -76,7 +76,7 @@ const logout = async () => {
     <main class="mx-auto max-w-6xl px-6 py-10">
 
       <div class="mb-6 flex items-center justify-end gap-4">
-        <NuxtLink to="/admin/create" class="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700">
+        <NuxtLink to="/admin/create" class="rounded-lg bg-green-600 px-4 py-2 font-medium text-white hover:bg-green-700">
           Create Post
         </NuxtLink>
       </div>
@@ -103,6 +103,13 @@ const logout = async () => {
 
           <p class="mt-4 text-sm text-gray-400">
             Posted by {{ post.user?.name || 'Unknown' }}
+          </p>
+
+          <p class="mt-4 text-sm text-gray-400">
+            {{ post.created_at ? `(Created on ${new Date(post.created_at).toLocaleDateString()})` : '' }}
+          </p>
+          <p class="mt-1 text-sm text-gray-400">
+            {{ post.updated_at ? `(Updated on ${new Date(post.updated_at).toLocaleDateString()})` : '' }}
           </p>
 
           <div class="mt-6 flex gap-3">

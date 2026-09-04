@@ -43,7 +43,7 @@ const login = async () => {
         if (response.user.role === 'admin') {
             await navigateTo('/admin')
         } else {
-            await navigateTo('/blogs')
+            await navigateTo('/login')
         }
 
     } catch (err: any) {

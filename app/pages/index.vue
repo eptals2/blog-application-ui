@@ -63,7 +63,7 @@ const { data, error, pending } = await useAsyncData(
                         {{ new Date(post.created_at).toLocaleDateString() }}
                     </p>
 
-                    <NuxtLink :to="`/blogs/${post.id}`"
+                    <NuxtLink :to="`/posts/${post.id}`"
                         class="mt-5 inline-block font-medium text-blue-600 hover:text-blue-800">
                         Read More →
                     </NuxtLink>
