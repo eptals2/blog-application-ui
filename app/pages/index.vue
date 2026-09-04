@@ -72,8 +72,6 @@ const { data, error, pending } = await useAsyncData(
 
             </div>
 
-
-            <!-- Empty -->
             <div v-else class="rounded-xl bg-white p-10 text-center shadow-sm">
                 <h2 class="text-xl font-semibold">
                     No posts found
