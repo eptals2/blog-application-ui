@@ -17,7 +17,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://blog-application-api-production.up.railway.app/api'
+      apiBase: process.env.NUXT_PUBLIC_API_BASE
     }
   }
 })
