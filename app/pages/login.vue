@@ -2,6 +2,7 @@
 
 const api = useApi()
 const auth = useAuth()
+const toast = useToast()
 
 const email = ref('')
 const password = ref('')
@@ -41,17 +42,14 @@ const login = async () => {
         )
 
         if (response.user.role === 'admin') {
+            toast.success('Logged in successfully.')
             await navigateTo('/admin')
         } else {
             await navigateTo('/login')
         }
 
     } catch (err: any) {
-
-        error.value =
-            err?.data?.message ||
-            'Failed to log in. Please check your credentials.'
-
+        toast.error('Failed to log in. Invalid email or password.')
     } finally {
         loading.value = false
     }

@@ -5,6 +5,7 @@ definePageMeta({
 })
 
 const api = useApi()
+const toast = useToast()
 
 const {
   data: posts,
@@ -16,34 +17,55 @@ const {
   () => api('/posts')
 )
 
-const deletePost = async (id: number) => {
+const showDeleteConfirm = ref(false)
+const selectedPostId = ref<number | null>(null)
+const deleting = ref(false)
 
-  if (!confirm('Are you sure you want to delete this post?')) {
-    return
-  }
+const openDeleteConfirm = (id: number) => {
+  selectedPostId.value = id
+  showDeleteConfirm.value = true
+}
+
+const deletePost = async () => {
+
+  if (!selectedPostId.value) return
+  deleting.value = true
 
   try {
-    await api(`/posts/${id}`, {
+    await api(`/posts/${selectedPostId.value}`, {
       method: 'DELETE'
     })
-
+    showDeleteConfirm.value = false
+    toast.success('Post deleted successfully.')
     await refresh()
   } catch (err: any) {
-    alert(
-      err?.data?.message ||
-      'Failed to delete post.'
-    )
+    toast.error('Failed to delete post.')
   }
 }
 
 const auth = useAuth()
 
+const showLogoutConfirm = ref(false)
+const loggingOut = ref(false)
+
 const logout = async () => {
+  loggingOut.value = true
+
+  try {
+    await api('/logout', {
+      method: 'POST'
+    })
+    toast.success('Logged out successfully.')
+    auth.logout()
+  } catch (err: any) {
+    toast.error('Failed to logout.')
+  } finally {
+    loggingOut.value = false
+  }
   await api('/logout', {
     method: 'POST'
   })
 
-  auth.logout()
 }
 
 </script>
@@ -66,7 +88,7 @@ const logout = async () => {
         </div>
 
         <button type="button" class="rounded-lg bg-gray-600 px-4 py-2 font-medium text-white hover:bg-gray-700"
-          @click="logout">
+          @click="showLogoutConfirm = true">
           Logout
         </button>
 
@@ -76,7 +98,8 @@ const logout = async () => {
     <main class="mx-auto max-w-6xl px-6 py-10">
 
       <div class="mb-6 flex items-center justify-end gap-4">
-        <NuxtLink to="/admin/create" class="rounded-lg bg-green-600 px-4 py-2 font-medium text-white hover:bg-green-700">
+        <NuxtLink to="/admin/create"
+          class="rounded-lg bg-green-600 px-4 py-2 font-medium text-white hover:bg-green-700">
           Create Post
         </NuxtLink>
       </div>
@@ -121,7 +144,7 @@ const logout = async () => {
 
             <button type="button"
               class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-              @click="deletePost(post.id)">
+              @click="openDeleteConfirm(post.id)">
               Delete
             </button>
 
@@ -144,5 +167,13 @@ const logout = async () => {
     </main>
 
   </div>
+
+  <AppConfirm v-if="showDeleteConfirm" title="Delete Post"
+    message="Are you sure you want to delete this post? This action cannot be undone." confirm-text="Delete"
+    :loading="deleting" @confirm="deletePost" @cancel="showDeleteConfirm = false" />
+
+
+  <AppConfirm v-if="showLogoutConfirm" title="Logout" message="Are you sure you want to logout?" confirm-text="Logout"
+    :loading="loggingOut" @confirm="logout" @cancel="showLogoutConfirm = false" />
 
 </template>
