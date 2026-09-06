@@ -20,9 +20,7 @@ const { data, error, pending } = await useAsyncData(
                 Posts
             </h1>
 
-            <p v-if="pending" class="text-gray-600">
-                Loading posts...
-            </p>
+            <AppLoading v-if="pending" message="Loading posts..." />
 
             <div v-else-if="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600">
                 Failed to load posts. {{ error.message }}

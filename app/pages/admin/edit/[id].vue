@@ -6,6 +6,7 @@ definePageMeta({
 
 const route = useRoute()
 const api = useApi()
+const toast = useToast()
 
 const title = ref('')
 const content = ref('')
@@ -14,7 +15,6 @@ const loading = ref(false)
 
 const postId = route.params.id
 
-// Load existing post
 const { data: post, pending } = await useAsyncData(
   `edit-post-${postId}`,
   () => api(`/posts/${postId}`)
@@ -38,11 +38,13 @@ const updatePost = async () => {
       }
     })
 
+    toast.success('Post updated successfully.')
     await navigateTo('/admin')
 
   } catch (err: any) {
     error.value =
       err?.data?.message || 'Failed to update post.'
+    toast.error('Failed to update post.')
   } finally {
     loading.value = false
   }
@@ -158,14 +160,13 @@ const updatePost = async () => {
 
           <!-- Buttons -->
           <div class="flex gap-4">
-
-            <button
+            <AppButton
               type="submit"
-              :disabled="loading"
+              :loading="loading"
               class="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {{ loading ? 'Updating...' : 'Update Post' }}
-            </button>
+              Update Post
+            </AppButton>
 
             <NuxtLink
               to="/admin"
