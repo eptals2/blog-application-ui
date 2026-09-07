@@ -59,17 +59,11 @@ const updatePost = async () => {
     <header class="border-b bg-white">
       <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
 
-        <NuxtLink
-          to="/admin"
-          class="text-2xl font-bold text-gray-900"
-        >
+        <NuxtLink to="/admin" class="text-2xl font-bold text-gray-900">
           Admin Dashboard
         </NuxtLink>
 
-        <NuxtLink
-          to="/admin"
-          class="text-gray-600 hover:text-gray-900"
-        >
+        <NuxtLink to="/admin" class="text-gray-600 hover:text-gray-900">
           Back to Dashboard
         </NuxtLink>
 
@@ -90,88 +84,62 @@ const updatePost = async () => {
         </p>
 
         <!-- Loading -->
-        <p
-          v-if="pending"
-          class="mt-6 text-gray-600"
-        >
-          Loading post...
-        </p>
+        <AppLoading v-if="pending" message="Loading post..." />
 
-        <!-- Error -->
-        <div
-          v-else-if="error"
-          class="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-600"
-        >
-          {{ error }}
+        <!-- If post not found -->
+        <div v-else-if="error" class="rounded-lg border border-red-200 bg-red-50 p-6 m-2">
+          <h2 class="font-semibold text-red-800">
+            Unable to load post
+          </h2>
+
+          <p class="mt-2 text-sm text-red-600">
+            The post could not be found or failed to load.
+          </p>
+
+          <NuxtLink to="/admin" class="mt-4 inline-block text-sm font-medium text-blue-600">
+            ← Back to Posts
+          </NuxtLink>
         </div>
 
         <!-- Form -->
-        <form
-          v-else
-          @submit.prevent="updatePost"
-          class="mt-8 space-y-6"
-        >
+        <form v-else @submit.prevent="updatePost" class="mt-8 space-y-6">
 
           <!-- Title -->
           <div>
-            <label
-              for="title"
-              class="mb-2 block font-medium text-gray-700"
-            >
+            <label for="title" class="mb-2 block font-medium text-gray-700">
               Title
             </label>
 
-            <input
-              id="title"
-              v-model="title"
-              type="text"
-              required
+            <input id="title" v-model="title" type="text" required
               class="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-              placeholder="Enter post title"
-            />
+              placeholder="Enter post title" />
           </div>
 
           <!-- Content -->
           <div>
-            <label
-              for="content"
-              class="mb-2 block font-medium text-gray-700"
-            >
+            <label for="content" class="mb-2 block font-medium text-gray-700">
               Content
             </label>
 
-            <textarea
-              id="content"
-              v-model="content"
-              rows="10"
-              required
+            <textarea id="content" v-model="content" rows="10" required
               class="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-              placeholder="Write your post..."
-            ></textarea>
+              placeholder="Write your post..."></textarea>
           </div>
 
-          <!-- Error message -->
-          <div
-            v-if="error"
-            class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600"
-          >
+          <!-- Error Message -->
+          <p v-if="error" class="rounded-lg bg-red-50 p-3 text-sm text-red-600">
             {{ error }}
-          </div>
+          </p>
 
           <!-- Buttons -->
           <div class="flex gap-4">
-            <AppButton
-              type="submit"
-              :loading="loading"
-              class="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
+            <AppButton type="submit" :loading="loading"
+              class="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
               Update Post
             </AppButton>
 
-            <NuxtLink
-              to="/admin"
-              class="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 hover:bg-gray-50"
-            >
+            <NuxtLink to="/admin"
+              class="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 hover:bg-gray-50">
               Cancel
             </NuxtLink>
 
