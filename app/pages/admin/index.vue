@@ -1,178 +1,173 @@
 <script setup lang="ts">
-
 definePageMeta({
-  middleware: 'admin'
+    middleware: 'admin'
 })
 
 const api = useApi()
-const toast = useToast()
 
-const {
-  data: posts,
-  error,
-  pending,
-  refresh
-} = await useAsyncData(
-  'admin-posts',
-  () => api('/posts')
-)
+const user = ref<any>(null)
 
-const showDeleteConfirm = ref(false)
-const selectedPostId = ref<number | null>(null)
-const deleting = ref(false)
+onMounted(() => {
+    const storedUser = localStorage.getItem('user')
 
-const openDeleteConfirm = (id: number) => {
-  selectedPostId.value = id
-  showDeleteConfirm.value = true
-}
-
-const deletePost = async () => {
-
-  if (!selectedPostId.value) return
-  deleting.value = true
-
-  try {
-    await api(`/posts/${selectedPostId.value}`, {
-      method: 'DELETE'
-    })
-    showDeleteConfirm.value = false
-    toast.success('Post deleted successfully.')
-    await refresh()
-  } catch (err: any) {
-    toast.error('Failed to delete post.')
-  }
-}
-
-const auth = useAuth()
-
-const showLogoutConfirm = ref(false)
-const loggingOut = ref(false)
+    if (storedUser) {
+        user.value = JSON.parse(storedUser)
+    }
+})
 
 const logout = async () => {
-  loggingOut.value = true
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
 
-  try {
-    await api('/logout', {
-      method: 'POST'
-    })
-    toast.success('Logged out successfully.')
-    auth.logout()
-  } catch (err: any) {
-    toast.error('Failed to logout.')
-  } finally {
-    loggingOut.value = false
-  }
-  await api('/logout', {
-    method: 'POST'
-  })
-
+    await navigateTo('/login')
 }
-
 </script>
 
 <template>
+    <div class="min-h-screen bg-gray-100">
 
-  <div class="min-h-screen bg-gray-100">
+        <!-- Navbar -->
+        <header class="border-b bg-white">
+            <div
+                class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4"
+            >
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900">
+                        Project Task Management
+                    </h1>
+                </div>
 
-    <header class="border-b bg-white">
-      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+                <div class="flex items-center gap-5">
 
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">
-            Admin Dashboard
-          </h1>
+                    <span class="text-sm text-gray-600">
+                        {{ user?.name || 'Administrator' }}
+                    </span>
 
-          <p class="text-sm text-gray-500">
-            Manage blog posts
-          </p>
-        </div>
+                    <button
+                        @click="logout"
+                        class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                    >
+                        Logout
+                    </button>
 
-        <button type="button" class="rounded-lg bg-gray-600 px-4 py-2 font-medium text-white hover:bg-gray-700"
-          @click="showLogoutConfirm = true">
-          Logout
-        </button>
-
-      </div>
-    </header>
-
-    <main class="mx-auto max-w-6xl px-6 py-10">
-
-      <div class="mb-6 flex items-center justify-end gap-4">
-        <NuxtLink to="/admin/create"
-          class="rounded-lg bg-green-600 px-4 py-2 font-medium text-white hover:bg-green-700">
-          Create Post
-        </NuxtLink>
-      </div>
-
-      <AppLoading v-if="pending" message="Loading posts..." />
+                </div>
+            </div>
+        </header>
 
 
-      <div v-else-if="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600">
-        Failed to load posts.
-      </div>
+        <!-- Main -->
+        <main class="mx-auto max-w-7xl px-6 py-8">
 
-      <div v-else-if="posts?.length" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <!-- Welcome -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900">
+                    Dashboard
+                </h2>
 
-        <article v-for="post in posts" :key="post.id" class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-
-          <h2 class="text-xl font-bold text-gray-900">
-            {{ post.title }}
-          </h2>
-
-          <p class="mt-3 text-gray-600">
-            {{ post.content }}
-          </p>
-
-          <p class="mt-4 text-sm text-gray-400">
-            Posted by {{ post.user?.name || 'Unknown' }}
-          </p>
-
-          <p class="mt-4 text-sm text-gray-400">
-            {{ post.created_at ? `(Created on ${new Date(post.created_at).toLocaleDateString()})` : '' }}
-          </p>
-          <p class="mt-1 text-sm text-gray-400">
-            {{ post.updated_at ? `(Updated on ${new Date(post.updated_at).toLocaleDateString()})` : '' }}
-          </p>
-
-          <div class="mt-6 flex gap-3">
-
-            <NuxtLink :to="`/admin/edit/${post.id}`"
-              class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-              Edit
-            </NuxtLink>
-
-            <button type="button"
-              class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-              @click="openDeleteConfirm(post.id)">
-              Delete
-            </button>
-
-          </div>
-
-        </article>
-
-      </div>
-
-      <div v-else class="rounded-xl bg-white p-10 text-center shadow-sm">
-        <h2 class="text-xl font-semibold text-gray-900">
-          No posts found
-        </h2>
-
-        <p class="mt-2 text-gray-500">
-          Create your first blog post.
-        </p>
-      </div>
-
-    </main>
-
-  </div>
-
-  <AppConfirm v-if="showDeleteConfirm" title="Delete Post"
-    message="Are you sure you want to delete this post? This action cannot be undone." confirm-text="Delete"
-    :loading="deleting" @confirm="deletePost" @cancel="showDeleteConfirm = false" />
+                <p class="mt-1 text-gray-500">
+                    Manage your projects, employees, and tasks.
+                </p>
+            </div>
 
 
-  <AppConfirm v-if="showLogoutConfirm" title="Logout" message="Are you sure you want to logout?" confirm-text="Logout"
-    :loading="loggingOut" @confirm="logout" @cancel="showLogoutConfirm = false" />
+            <!-- Statistics -->
+            <div class="grid gap-6 md:grid-cols-3">
 
+                <!-- Projects -->
+                <NuxtLink
+                    to="/admin/projects"
+                    class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                >
+                    <div class="flex items-center justify-between">
+
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">
+                                Projects
+                            </p>
+
+                            <p class="mt-2 text-3xl font-bold text-gray-900">
+                                →
+                            </p>
+                        </div>
+
+                        <div
+                            class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 text-xl"
+                        >
+                            📁
+                        </div>
+
+                    </div>
+
+                    <p class="mt-4 text-sm text-blue-600">
+                        Manage projects →
+                    </p>
+                </NuxtLink>
+
+
+                <!-- Employees -->
+                <NuxtLink
+                    to="/admin/employees"
+                    class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                >
+                    <div class="flex items-center justify-between">
+
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">
+                                Employees
+                            </p>
+
+                            <p class="mt-2 text-3xl font-bold text-gray-900">
+                                →
+                            </p>
+                        </div>
+
+                        <div
+                            class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 text-xl"
+                        >
+                            👥
+                        </div>
+
+                    </div>
+
+                    <p class="mt-4 text-sm text-green-600">
+                        Manage employees →
+                    </p>
+                </NuxtLink>
+
+
+                <!-- Tasks -->
+                <NuxtLink
+                    to="/admin/tasks"
+                    class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                >
+                    <div class="flex items-center justify-between">
+
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">
+                                Tasks
+                            </p>
+
+                            <p class="mt-2 text-3xl font-bold text-gray-900">
+                                →
+                            </p>
+                        </div>
+
+                        <div
+                            class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 text-xl"
+                        >
+                            ✓
+                        </div>
+
+                    </div>
+
+                    <p class="mt-4 text-sm text-purple-600">
+                        Manage tasks →
+                    </p>
+                </NuxtLink>
+
+            </div>
+
+        </main>
+
+    </div>
 </template>

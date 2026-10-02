@@ -1,68 +1,100 @@
 <script setup lang="ts">
 
 const api = useApi()
+const auth = useAuth()
+const toast = useToast()
 
-const { data, error, pending } = await useAsyncData(
-    'posts',
-    () => api('/posts')
-)
+const email = ref('')
+const password = ref('')
+const error = ref('')
+const loading = ref(false)
+
+interface User {
+    id: number
+    name: string
+    email: string
+    role: string
+}
+
+interface LoginResponse {
+    message: string
+    user: User
+    token: string
+}
+
+const login = async () => {
+    error.value = ''
+    loading.value = true
+
+    try {
+        const response = await api<LoginResponse>('/login', {
+            method: 'POST',
+
+            body: {
+                email: email.value,
+                password: password.value
+            }
+        })
+
+        auth.login(
+            response.token,
+            response.user
+        )
+
+        if (response.user.role === 'admin') {
+            toast.success('Logged in successfully.')
+            await navigateTo('/admin')
+        } else {
+            await navigateTo('/login')
+        }
+
+    } catch (err: any) {
+        toast.error('Failed to log in. Invalid email or password.')
+    } finally {
+        loading.value = false
+    }
+}
 
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-100">
 
-        <Navbar />
+    <div class="min-h-screen bg-gray-100 flex items-center justify-center">
 
-        <main class="mx-auto max-w-6xl px-6 py-10">
+        <form class="w-full max-w-md rounded-xl bg-white p-8 shadow" @submit.prevent="login">
 
-            <h1 class="mb-8 text-4xl font-bold text-gray-900">
-                Posts
+            <h1 class="mb-6 text-2xl font-bold">
+                Admin Login
             </h1>
 
-            <AppLoading v-if="pending" message="Loading posts..." />
+            <label for="email" class="mb-2 block text-sm font-medium">
+                Email
+            </label>
 
-            <div v-else-if="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600">
-                Failed to load posts. {{ error.message }}
-            </div>
+            <input id="email" v-model="email" type="email" autocomplete="email" required
+                class="mb-4 w-full rounded-lg border px-4 py-2" />
 
-            <div v-else-if="data?.length" class="grid gap-6 md:grid-cols-1 lg:grid-cols-1">
+            <label for="password" class="mb-2 block text-sm font-medium">
+                Password
+            </label>
 
-                <article v-for="post in data" :key="post.id"
-                    class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+            <input id="password" v-model="password" type="password" autocomplete="current-password" required
+                class="mb-4 w-full rounded-lg border px-4 py-2" />
 
-                    <h2 class="text-xl font-bold text-gray-900">
-                        {{ post.title }}
-                    </h2>
+            <p v-if="error" class="mb-4 text-sm text-red-600">
+                {{ error }}
+            </p>
 
-                    <p class="mt-2 text-sm text-gray-500">
-                        By {{ post.user?.name || 'Unknown' }}
-                    </p>
+            <button type="submit" :disabled="loading"
+                class="w-full rounded-lg bg-black px-4 py-2 text-white hover:bg-gray-800 disabled:opacity-50">
+                {{ loading ? 'Logging in...' : 'Log in' }}
+            </button>
 
-                    <p class="mt-4 text-gray-600">
-                        {{ post.content }}
-                    </p>
+            <NuxtLink to="/" class="text-gray-600 hover:text-gray-900 text-center block mt-4">
+                Back to Home </NuxtLink>
 
-                    <p class="mt-4 text-xs text-gray-400">
-                        {{ new Date(post.created_at).toLocaleDateString() }}
-                    </p>
-
-                    <NuxtLink :to="`/posts/${post.id}`"
-                        class="mt-5 inline-block font-medium text-blue-600 hover:text-blue-800">
-                        Read More →
-                    </NuxtLink>
-
-                </article>
-
-            </div>
-
-            <div v-else class="rounded-xl bg-white p-10 text-center shadow-sm">
-                <h2 class="text-xl font-semibold">
-                    No posts found
-                </h2>
-            </div>
-
-        </main>
+        </form>
 
     </div>
+
 </template>
